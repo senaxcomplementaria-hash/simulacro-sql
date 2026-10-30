@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulacro Técnico SQL - Evaluación de Competencia SENA / Empresa</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-600 text-white p-2.5 rounded-xl font-bold text-xl shadow-md">
+                    SQL
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-wide">Evaluación Técnica de SQL (Simulacro Empresarial)</h1>
+                    <p class="text-xs text-slate-400">Centro de Procesos Industriales y Construcción - SENA</p>
+                </div>
+            </div>
+            <!-- Timer & Status Bar -->
+            <div id="timer-container" class="hidden items-center bg-slate-900/80 border border-slate-700 px-4 py-2 rounded-xl shadow-inner flex-col w-48">
+                <div class="flex justify-between items-center w-full mb-1">
+                    <span class="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Tiempo Restante</span>
+                    <span id="timer-display" class="text-lg font-mono font-bold text-emerald-400">60:00</span>
+                </div>
+                <!-- Barra de progreso del tiempo -->
+                <div class="w-full bg-slate-800 rounded-full h-1.5">
+                    <div id="time-progress" class="bg-emerald-500 h-1.5 rounded-full transition-all duration-1000 ease-linear" style="width: 100%;"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-4xl w-full mx-auto px-4 py-8 flex-grow">
+
+        <!-- STEP 1: Registration Form -->
+        <section id="registration-section" class="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl p-8 max-w-xl mx-auto">
+            <div class="text-center mb-6">
+                <span class="bg-emerald-500/10 text-emerald-400 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-widest border border-emerald-500/20">Proceso de Selección</span>
+                <h2 class="text-2xl font-bold text-white mt-3">Registro de Aspirante</h2>
+                <p class="text-sm text-slate-400 mt-1">Prueba técnica mixta (Opción múltiple, Apareamiento y 5 preguntas de respuesta abierta donde debe digitar el comando/término exacto). Dispone de 1 hora.</p>
+            </div>
+
+            <form id="candidate-form" class="space-y-5" onsubmit="handleRegistration(event)">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Nombre Completo</label>
+                    <input type="text" id="fullname" required placeholder="Ej. Carlos Andrés Loaiza" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Número de Documento</label>
+                    <input type="text" id="document" required placeholder="Ej. 1020304050" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-300 mb-1.5">Correo Electrónico</label>
+                    <input type="email" id="email" required placeholder="Ej. correo@sena.edu.co" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                    <p id="email-error" class="text-rose-400 text-xs mt-1.5 hidden"></p>
+                </div>
+
+                <div class="bg-slate-900/50 border border-slate-700/60 p-4 rounded-xl text-xs text-slate-300 space-y-2">
+                    <p class="font-semibold text-emerald-400 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Instrucciones importantes:
+                    </p>
+                    <ul class="list-disc list-inside space-y-1 text-slate-400">
+                        <li>La prueba consta de 50 preguntas (Selección múltiple, Apareamiento y 5 preguntas de respuesta abierta obligatoria).</li>
+                        <li>El tiempo límite es estrictamente de 60 minutos. Al agotarse, se enviará automáticamente.</li>
+                        <li>Las preguntas y opciones se presentan en orden aleatorio para garantizar la transparencia.</li>
+                        <li>Esta prueba solo se puede presentar una única vez por correo electrónico.</li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition duration-200 flex items-center justify-center gap-2">
+                    <span>Iniciar Simulacro Técnico</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </button>
+            </form>
+        </section>
+
+        <!-- STEP 2: Quiz Interface -->
+        <section id="quiz-section" class="hidden space-y-6">
+            <!-- Progress Bar & Question Navigator Header -->
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <span id="question-progress-label" class="text-xs font-semibold text-emerald-400 uppercase tracking-widest">Pregunta 1 de 50</span>
+                    <h3 id="category-title" class="text-base font-bold text-white">Comandos DDL y Estructura de Tablas</h3>
+                </div>
+                <div class="w-full md:w-64 bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-700">
+                    <div id="progress-bar" class="bg-emerald-500 h-2.5 transition-all duration-300" style="width: 2%;"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl p-6 sm:p-8">
+                <div id="question-container" class="space-y-6">
+                    <!-- Dynamic Question Inserted Here -->
+                </div>
+
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between items-center mt-8 pt-6 border-t border-slate-700">
+                    <button id="prev-btn" onclick="prevQuestion()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-5 py-2.5 rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed">
+                        Anterior
+                    </button>
+                    <div id="question-nav-dots" class="hidden sm:flex space-x-1 overflow-x-auto max-w-xs py-1">
+                        <!-- Dots generated by JS -->
+                    </div>
+                    <button id="next-btn" onclick="nextQuestion()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-6 py-2.5 rounded-xl transition">
+                        Siguiente
+                    </button>
+                    <button id="submit-btn" onclick="confirmSubmit()" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-2.5 rounded-xl shadow-lg transition flex items-center gap-2">
+                        <span>Finalizar y Entregar</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STEP 3: Results Section -->
+        <section id="result-section" class="hidden bg-slate-800 border border-slate-700 rounded-2xl shadow-xl p-8 max-w-3xl mx-auto space-y-6">
+            <div class="text-center space-y-3">
+                <div id="result-badge" class="inline-flex items-center justify-center w-16 h-16 rounded-full text-2xl font-bold shadow-lg mb-2">
+                    🏆
+                </div>
+                <h2 class="text-3xl font-extrabold text-white">Resultado del Simulacro</h2>
+                <!-- Aquí se inyecta el mensaje dinámico -->
+                <p id="result-subtitle" class="text-lg font-bold text-slate-400">Evaluación completada.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-slate-900/60 p-5 rounded-xl border border-slate-700/60 text-center">
+                <div>
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Calificación</span>
+                    <span id="score-display" class="text-3xl font-black text-emerald-400 mt-1 block">0 / 50</span>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Porcentaje</span>
+                    <span id="percentage-display" class="text-3xl font-black text-white mt-1 block">0%</span>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-400 uppercase tracking-wider block">Concepto Empresa</span>
+                    <span id="status-display" class="text-lg font-bold mt-2 block">-</span>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h3 class="text-lg font-bold text-white border-b border-slate-700 pb-2">Resumen de Aspirante</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-slate-300">
+                    <div><strong class="text-slate-400">Nombre:</strong> <span id="res-name"></span></div>
+                    <div><strong class="text-slate-400">Documento:</strong> <span id="res-doc"></span></div>
+                    <div><strong class="text-slate-400">Correo:</strong> <span id="res-email"></span></div>
+                    <div><strong class="text-slate-400">Fecha/Hora:</strong> <span id="res-time"></span></div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                <button onclick="toggleReviewMode()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-6 rounded-xl transition text-center">
+                    Revisar Respuestas y Retroalimentación
+                </button>
+                <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition text-center">
+                    Imprimir / Guardar Constancia
+                </button>
+            </div>
+
+            <!-- Review Container -->
+            <div id="review-container" class="hidden space-y-4 pt-6 border-t border-slate-700 max-h-96 overflow-y-auto custom-scrollbar pr-2">
+                <!-- Detailed review inserted here -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 border-t border-slate-700 py-4 text-center text-xs text-slate-400">
+        <p>Simulacro Técnico de Bases de Datos SQL • Diseñado para Formación y Empleabilidad SENA</p>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        const originalQuestions = [
+            { q: "¿Qué comando SQL se utiliza para crear una nueva base de datos en un SGBD relacional?", options: ["CREATE DATABASE", "NEW DATABASE", "ADD DATABASE", "MAKE SCHEMA"], correct: 0, cat: "DDL y Estructura", type: "multiple" },
+            { q: "¿Cuál es la instrucción DDL correcta para eliminar una tabla existente junto con todos sus datos de manera definitiva?", options: ["DELETE TABLE", "DROP TABLE", "REMOVE TABLE", "TRUNCATE TABLE DROP"], correct: 1, cat: "DDL y Estructura", type: "multiple" },
+            { q: "¿Qué restricción (Constraint) garantiza que los valores de una columna no puedan ser NULL y además sean únicos en toda la tabla?", options: ["CHECK", "FOREIGN KEY", "PRIMARY KEY", "DEFAULT"], correct: 2, cat: "Restricciones", type: "multiple" },
+            { q: "¿Qué comando se utiliza para modificar la estructura de una tabla existente (por ejemplo, agregar una columna nueva)?", options: ["UPDATE TABLE", "ALTER TABLE", "CHANGE TABLE", "MODIFY TABLE"], correct: 1, cat: "DDL y Estructura", type: "multiple" },
+            { q: "¿Cuál es la función principal de la cláusula FOREIGN KEY en SQL?", options: ["Acelerar las consultas complejas", "Garantizar la integridad referencial entre dos tablas", "Evitar datos duplicados en la misma tabla", "Cifrar la información sensible"], correct: 1, cat: "Restricciones", type: "multiple" },
+            { q: "¿Qué diferencia fundamental existe entre TRUNCATE TABLE y DELETE sin cláusula WHERE?", options: ["TRUNCATE es DDL, reinicia contadores (auto_increment) y es más rápido; DELETE es DML y registra cada fila en el log", "DELETE es DDL y TRUNCATE es DML", "No hay ninguna diferencia operativa", "TRUNCATE permite usar WHERE y DELETE no"], correct: 0, cat: "DDL y DML", type: "multiple" },
+            { q: "¿Qué restricción permite especificar una condición lógica que los valores insertados en una columna deben cumplir obligatoriamente?", options: ["UNIQUE", "NULL", "CHECK", "INDEX"], correct: 2, cat: "Restricciones", type: "multiple" },
+            { q: "¿Cómo se define un valor por defecto para una columna cuando se inserta un registro sin especificar dicho campo?", options: ["SET DEFAULT 'valor'", "DEFAULT 'valor'", "ASSIGN 'valor'", "INITIAL 'valor'"], correct: 1, cat: "Restricciones", type: "multiple" },
+            { q: "¿Cuál es la sintaxis correcta para insertar un nuevo registro en la tabla 'empleados'?", options: ["INSERT INTO empleados VALUES ('Juan', 30);", "ADD INTO empleados (nombre, edad) VALUES ('Juan', 30);", "INSERT TABLE empleados (nombre, edad) VALUES ('Juan', 30);", "UPDATE empleados SET (nombre, edad) = ('Juan', 30);"], correct: 0, cat: "DML (Inserción)", type: "multiple" },
+            { q: "¿Qué ocurre si ejecutas una sentencia UPDATE sobre una tabla sin incluir la cláusula WHERE?", options: ["Se genera un error de sintaxis", "Se actualizan todos los registros de la tabla", "No se modifica ningún registro", "Se actualiza únicamente el primer registro"], correct: 1, cat: "DML (Actualización)", type: "multiple" },
+            { q: "¿Cómo se eliminan específicamente los registros de la tabla 'clientes' donde el estado sea 'Inactivo'?", options: ["REMOVE FROM clientes WHERE estado = 'Inactivo';", "DELETE FROM clientes WHERE estado = 'Inactivo';", "DROP FROM clientes WHERE estado = 'Inactivo';", "CLEAR clientes WHERE estado = 'Inactivo';"], correct: 1, cat: "DML (Eliminación)", type: "multiple" },
+            { q: "¿Es posible insertar múltiples filas en una sola sentencia INSERT en SQL estándar?", options: ["No, se requiere un INSERT por cada registro", "Sí, separando cada conjunto de valores con comas en la cláusula VALUES", "Solo utilizando transacciones explícitas", "Solo si se usa MariaDB pero no MySQL"], correct: 1, cat: "DML (Inserción)", type: "multiple" },
+            { q: "¿Qué comando DML permite actualizar el salario de un empleado con ID 5 a 3500?", options: ["UPDATE empleados SET salario = 3500 WHERE id = 5;", "MODIFY empleados SET salario = 3500 WHERE id = 5;", "ALTER empleados SET salario = 3500 WHERE id = 5;", "SET empleados salario = 3500 WHERE id = 5;"], correct: 0, cat: "DML (Actualización)", type: "multiple" },
+            { q: "¿Qué cláusula se utiliza en un comando INSERT para insertar los resultados obtenidos de otra consulta SELECT?", options: ["INSERT INTO ... SELECT ...", "SELECT INTO ... FROM ...", "COPY INTO ... FROM ...", "TRANSFER INTO ..."], correct: 0, cat: "DML Avanzado", type: "multiple" },
+            { q: "¿Cuál es la cláusula obligatoria en toda consulta de recuperación de datos en SQL?", options: ["FROM", "SELECT", "WHERE", "GROUP BY"], correct: 1, cat: "DQL (Consultas Básicas)", type: "multiple" },
+            { q: "¿Qué operador se utiliza para filtrar patrones de texto utilizando comodines como '%' y '_'?", options: ["CONTAINS", "LIKE", "MATCH", "REGEXP_TEST"], correct: 1, cat: "Filtrado de Datos", type: "multiple" },
+            { q: "¿Qué operador se emplea para verificar si un valor se encuentra dentro de un conjunto específico de valores (ej. 10, 20, 30)?", options: ["WITHIN", "EXISTS", "IN", "BETWEEN"], correct: 2, cat: "Filtrado de Datos", type: "multiple" },
+            { q: "¿Cómo se ordenan los resultados de una consulta de forma descendente?", options: ["ORDER BY columna DESC", "SORT BY columna DOWN", "ORDER DESC columna", "SORT DESCENDING"], correct: 0, cat: "Ordenamiento y Paginación", type: "multiple" },
+            { q: "¿Qué cláusula se utiliza para limitar el número de registros devueltos por una consulta SELECT en MySQL/MariaDB?", options: ["TOP", "LIMIT", "ROWNUM", "FETCH FIRST"], correct: 1, cat: "Ordenamiento y Paginación", type: "multiple" },
+            { q: "¿Cuál es el propósito de la palabra clave DISTINCT en una sentencia SELECT?", options: ["Filtrar valores nulos", "Eliminar filas duplicadas en el resultado de la consulta", "Ordenar alfabéticamente", "Renombrar columnas temporalmente"], correct: 1, cat: "DQL (Consultas Básicas)", type: "multiple" },
+            { q: "¿Cómo se define un alias para una columna o tabla en una consulta SQL?", options: ["Usando la palabra clave AS o un espacio en blanco", "Usando la palabra clave ALIAS", "Usando dos puntos (:)", "Usando flechas (->)"], correct: 0, cat: "DQL (Consultas Básicas)", type: "multiple" },
+            { q: "¿Qué operador lógico evalúa a verdadero si AMBAS condiciones evaluadas son verdaderas?", options: ["OR", "NOT", "AND", "XOR"], correct: 2, cat: "Operadores Lógicos", type: "multiple" },
+            { q: "¿Cómo se filtran correctamente los registros que tienen un valor NULL en una columna llamada 'telefono'?", options: ["WHERE telefono = NULL", "WHERE telefono IS NULL", "WHERE telefono EQUALS NULL", "WHERE ISNULL(telefono)"], correct: 1, cat: "Manejo de NULLs", type: "multiple" },
+            { q: "¿Qué operador se utiliza para filtrar rangos numéricos o de fechas (por ejemplo, entre 100 y 500)?", options: ["RANGE", "WITHIN", "BETWEEN ... AND ...", "LIMIT"], correct: 2, cat: "Filtrado de Datos", type: "multiple" },
+            { q: "¿Qué tipo de JOIN devuelve únicamente los registros que tienen una coincidencia en ambas tablas relacionadas?", options: ["LEFT JOIN", "RIGHT JOIN", "INNER JOIN", "FULL OUTER JOIN"], correct: 2, cat: "Joins y Relaciones", type: "multiple" },
+            { q: "¿Cuál es el comportamiento de un LEFT JOIN cuando no hay coincidencia en la tabla de la derecha?", options: ["Devuelve un error de integridad", "Omite por completo el registro de la izquierda", "Devuelve los registros de la izquierda completando con NULL los campos de la derecha", "Devuelve ceros en las columnas numéricas"], correct: 2, cat: "Joins y Relaciones", type: "multiple" },
+            { q: "¿Qué tipo de JOIN combina todos los registros de ambas tablas, mostrando NULL donde no existan coincidencias en ninguna de las direcciones?", options: ["CROSS JOIN", "FULL OUTER JOIN", "INNER JOIN", "NATURAL JOIN"], correct: 1, cat: "Joins y Relaciones", type: "multiple" },
+            { q: "¿Qué produce un CROSS JOIN entre dos tablas de 5 y 10 registros respectivamente?", options: ["5 registros", "10 registros", "15 registros", "50 registros"], correct: 3, cat: "Joins y Relaciones", type: "multiple" },
+            { q: "¿Qué es un SELF JOIN en SQL?", options: ["Una consulta que se une a sí misma (una tabla relacionada consigo misma)", "Una consulta que no requiere ninguna cláusula JOIN", "Una unión entre bases de datos de diferentes servidores", "Una subconsulta anidada"], correct: 0, cat: "Joins y Relaciones", type: "multiple" },
+            { q: "¿Cuál es la cláusula estándar utilizada para especificar la condición de unión (criterio de enlace) en un JOIN?", options: ["WHERE", "ON", "USING", "CONNECT BY"], correct: 1, cat: "Joins y Relaciones", type: "multiple" },
+            { q: "¿Qué ventaja ofrece la cláusula USING frente a ON en un JOIN?", options: ["Permite unir tablas con nombres de columnas idénticos de manera más concisa", "Es obligatoria en bases de datos distribuidas", "Permite hacer cálculos matemáticos complejos", "Reemplaza completamente al GROUP BY"], correct: 0, cat: "Joins y Relaciones", type: "multiple" },
+            { q: "¿Se pueden combinar múltiples JOINs en una sola sentencia SQL?", options: ["No, solo se permite un JOIN por consulta", "Sí, es común encadenar varios INNER o LEFT JOIN para relacionar múltiples entidades", "Solo si se usa la cláusula MERGE", "Únicamente en motores comerciales, no en software libre"], correct: 1, cat: "Joins y Relaciones", type: "multiple" },
+            { q: "¿Qué función de agregación se utiliza para calcular el promedio aritmético de una columna numérica?", options: ["SUM()", "AVG()", "COUNT()", "MEDIAN()"], correct: 1, cat: "Agregación y Agrupamiento", type: "multiple" },
+            { q: "¿Cuál es la diferencia entre COUNT(*) y COUNT(columna)?", options: ["COUNT(*) cuenta todas las filas (incluyendo NULLs), mientras COUNT(columna) ignora los valores NULL", "COUNT(columna) es más rápido que COUNT(*)", "No hay ninguna diferencia", "COUNT(*) solo cuenta registros duplicados"], correct: 0, cat: "Agregación y Agrupamiento", type: "multiple" },
+            { q: "¿Qué cláusula se utiliza para agrupar filas que comparten un mismo valor en columnas específicas para aplicar funciones de agregación?", options: ["ORDER BY", "HAVING", "GROUP BY", "CLUSTER BY"], correct: 2, cat: "Agregación y Agrupamiento", type: "multiple" },
+            { q: "Apareamiento de Términos: Seleccione el significado correcto que corresponde al concepto clave: <strong>DDL (Data Definition Language)</strong>", options: ["Conjunto de comandos SQL utilizados para definir, modificar y estructurar el esquema de la base de datos (CREATE, DROP, ALTER).", "Lenguaje para consultar y manipular los datos almacenados (SELECT, INSERT, UPDATE).", "Protocolo de red para conectar bases de datos remotas de forma segura.", "Sistema de control de versiones para esquemas relacionales."], correct: 0, cat: "Apareamiento: Conceptos", type: "matching" },
+            { q: "Apareamiento de Términos: Seleccione el significado correcto que corresponde al concepto clave: <strong>DML (Data Manipulation Language)</strong>", options: ["Comandos para definir permisos de usuarios en el servidor SQL.", "Subconjunto de comandos SQL encargados de consultar, insertar, modificar y eliminar registros en las tablas (SELECT, INSERT, UPDATE, DELETE).", "Instrucciones DDL para respaldar bases de datos.", "Arquitectura de almacenamiento físico en disco."], correct: 1, cat: "Apareamiento: Conceptos", type: "matching" },
+            { q: "Apareamiento de Términos: Seleccione el significado correcto que corresponde al concepto clave: <strong>Primary Key (Clave Primaria)</strong>", options: ["Una columna que permite almacenar cualquier tipo de dato repetido y nulo.", "Un identificador único para cada registro de una tabla que garantiza la no duplicidad y la prohibición de valores nulos (NOT NULL).", "Una conexión remota entre dos servidores de bases de datos diferentes.", "Un índice secundario temporal para ordenar resultados alfabéticamente."], correct: 1, cat: "Apareamiento: Conceptos", type: "matching" },
+            { q: "Apareamiento de Términos: Seleccione el significado correcto que corresponde al concepto clave: <strong>Foreign Key (Clave Foránea)</strong>", options: ["Restricción que vincula una columna en una tabla con la Clave Primaria de otra tabla, asegurando la integridad referencial.", "Un comando para encriptar contraseñas de usuarios en MySQL.", "Una función matemática para calcular raíces cuadradas en consultas SQL.", "Una tabla virtual almacenada en memoria caché."], correct: 0, cat: "Apareamiento: Conceptos", type: "matching" },
+            { q: "Apareamiento de Términos: Seleccione el significado correcto que corresponde al concepto clave: <strong>Transacción (ACID)</strong>", options: ["Una consulta SELECT lenta que bloquea la base de datos.", "Secuencia de operaciones ejecutadas como una unidad lógica de trabajo que cumple con Atomicidad, Consistencia, Aislamiento y Durabilidad.", "Un informe automático de errores generado por el SGBD.", "Un procedimiento almacenado para exportar datos a formato CSV."], correct: 1, cat: "Apareamiento: Conceptos", type: "matching" },
+            { q: "Apareamiento de Términos: Seleccione el significado correcto que corresponde al concepto clave: <strong>Índice (INDEX)</strong>", options: ["Estructura de datos optimizada (como un árbol B-Tree) que permite al SGBD encontrar y recuperar filas de una tabla mucho más rápido.", "Una lista de todas las tablas borradas por error en la papelera.", "Un número de serie asignado a la licencia del motor de base de datos.", "Una restricción para evitar datos nulos en campos de texto."], correct: 0, cat: "Apareamiento: Conceptos", type: "matching" },
+            { q: "Apareamiento de Términos: Seleccione el significado correcto que corresponde al concepto clave: <strong>Vista (VIEW)</strong>", options: ["Una tabla física que duplica todos sus registros cada 24 horas.", "Una tabla virtual cuyo contenido está definido por una consulta SELECT almacenada, facilitando consultas complejas y seguridad.", "La interfaz gráfica web (UI) para administrar MySQL.", "Un archivo de log de transacciones activas."], correct: 1, cat: "Apareamiento: Conceptos", type: "matching" },
+            { q: "Apareamiento de Términos: Seleccione el significado correcto que corresponde al concepto clave: <strong>GROUP BY</strong>", options: ["Cláusula que ordena alfabéticamente los resultados de una consulta.", "Cláusula que agrupa filas que comparten valores idénticos en columnas específicas para aplicarles funciones de agregación (SUM, AVG, COUNT).", "Un comando para fusionar dos bases de datos en un solo servidor.", "Una restricción de seguridad contra ataques de inyección SQL."], correct: 1, cat: "Apareamiento: Conceptos", type: "matching" },
+            { q: "Apareamiento de Términos: Seleccione el significado correcto que corresponde al concepto clave: <strong>HAVING</strong>", options: ["Una función para verificar si existe conexión a internet en el servidor.", "Una cláusula utilizada para filtrar los grupos resultantes de un GROUP BY, similar a WHERE pero operando sobre agregaciones.", "Un comando para renombrar columnas en tiempo de ejecución.", "Un operador lógico equivalente al operador OR exclusivo."], correct: 1, cat: "Apareamiento: Conceptos", type: "matching" },
+            { q: "Apareamiento de Términos: Seleccione el significado correcto que corresponde al concepto clave: <strong>Procedimiento Almacenado (Stored Procedure)</strong>", options: ["Un bloque de código SQL compilado y guardado en el servidor de base de datos que puede aceptar parámetros y ejecutar lógica compleja.", "Un archivo de respaldo comprimido en formato ZIP.", "Una macro de Excel conectada mediante ODBC.", "Un script de JavaScript ejecutado en el navegador web."], correct: 0, cat: "Apareamiento: Conceptos", type: "matching" },
+            { q: "Pregunta Abierta: Digite el comando DDL exacto utilizado para <strong>crear una nueva tabla</strong> en una base de datos relacional.", acceptedAnswers: ["create table", "createtable"], cat: "Preguntas Abiertas (Digitación)", type: "open", hint: "Ej. create table" },
+            { q: "Pregunta Abierta: Digite la instrucción DML exacta utilizada para <strong>insertar nuevos registros</strong> en una tabla.", acceptedAnswers: ["insert into", "insertinto", "insert"], cat: "Preguntas Abiertas (Digitación)", type: "open", hint: "Ej. insert into" },
+            { q: "Pregunta Abierta: Digite la instrucción DML exacta utilizada para <strong>actualizar o modificar datos existentes</strong> en una tabla.", acceptedAnswers: ["update", "update set"], cat: "Preguntas Abiertas (Digitación)", type: "open", hint: "Ej. update" },
+            { q: "Pregunta Abierta: Digite la instrucción DML exacta utilizada para <strong>eliminar registros</strong> de una tabla.", acceptedAnswers: ["delete from", "deletefrom", "delete"], cat: "Preguntas Abiertas (Digitación)", type: "open", hint: "Ej. delete from" },
+            { q: "Pregunta Abierta: Digite la palabra clave de la cláusula DQL utilizada para <strong>recuperar y consultar datos</strong> de una o varias tablas.", acceptedAnswers: ["select"], cat: "Preguntas Abiertas (Digitación)", type: "open", hint: "Ej. select" }
+        ];
+
+        let examQuestions = [];
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let timerInterval = null;
+        let endTime = 0; 
+        let candidateData = {};
+
+        function initStorage() {
+            if (!localStorage.getItem('sql_simulacro_submissions')) {
+                localStorage.setItem('sql_simulacro_submissions', JSON.stringify([]));
+            }
+        }
+        initStorage();
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function prepareRandomExam() {
+            let clonedQuestions = JSON.parse(JSON.stringify(originalQuestions));
+            clonedQuestions = shuffleArray(clonedQuestions);
+
+            clonedQuestions.forEach(q => {
+                if (q.options && q.options.length > 0) {
+                    let optionsWithStatus = q.options.map((text, index) => {
+                        return { text: text, isCorrect: (index === q.correct) };
+                    });
+                    optionsWithStatus = shuffleArray(optionsWithStatus);
+                    q.options = optionsWithStatus.map(item => item.text);
+                    q.correct = optionsWithStatus.findIndex(item => item.isCorrect);
+                }
+            });
+
+            examQuestions = clonedQuestions;
+            userAnswers = new Array(examQuestions.length).fill(null);
+        }
+
+        function handleRegistration(e) {
+            e.preventDefault();
+            const fullname = document.getElementById('fullname').value.trim();
+            const documentNum = document.getElementById('document').value.trim();
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const emailError = document.getElementById('email-error');
+
+            const submissions = JSON.parse(localStorage.getItem('sql_simulacro_submissions'));
+            const existing = submissions.find(s => s.email === email);
+
+            if (existing) {
+                emailError.textContent = `El correo ${email} ya presentó este simulacro el ${existing.date}. Las políticas empresariales permiten presentar la prueba una sola vez.`;
+                emailError.classList.remove('hidden');
+                return;
+            }
+
+            emailError.classList.add('hidden');
+            candidateData = { fullname, document: documentNum, email, date: new Date().toLocaleString() };
+
+            prepareRandomExam();
+
+            document.getElementById('registration-section').classList.add('hidden');
+            document.getElementById('quiz-section').classList.remove('hidden');
+            document.getElementById('timer-container').classList.remove('hidden');
+            document.getElementById('timer-container').classList.add('flex');
+
+            renderQuestion();
+            updateNavDots();
+            startTimer();
+        }
+
+        function startTimer() {
+            endTime = Date.now() + (60 * 60 * 1000);
+            
+            if (timerInterval) clearInterval(timerInterval);
+            
+            actualizarDisplayTiempo();
+
+            timerInterval = setInterval(() => {
+                const ahora = Date.now();
+                const tiempoRestanteMs = endTime - ahora;
+                
+                if (tiempoRestanteMs <= 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timer-display').textContent = "00:00";
+                    document.getElementById('time-progress').style.width = "0%";
+                    alert("El tiempo de la prueba ha finalizado. Se enviarán sus respuestas automáticamente.");
+                    submitQuiz();
+                    return;
+                }
+                
+                actualizarDisplayTiempo(tiempoRestanteMs);
+            }, 1000);
+        }
+
+        function actualizarDisplayTiempo(tiempoRestanteMs) {
+            if (tiempoRestanteMs === undefined) {
+                tiempoRestanteMs = endTime - Date.now();
+            }
+
+            const timeLeft = Math.max(0, Math.floor(tiempoRestanteMs / 1000));
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const display = document.getElementById('timer-display');
+            const progressBar = document.getElementById('time-progress');
+            
+            if (display) {
+                display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            if (progressBar) {
+                const percent = (tiempoRestanteMs / (60 * 60 * 1000)) * 100;
+                progressBar.style.width = `${percent}%`;
+
+                if (timeLeft <= 300) { 
+                    display.className = 'text-lg font-mono font-bold text-rose-500 animate-pulse';
+                    progressBar.className = 'bg-rose-500 h-1.5 rounded-full transition-all duration-1000 ease-linear';
+                } else if (timeLeft <= 900) { 
+                    display.className = 'text-lg font-mono font-bold text-amber-400';
+                    progressBar.className = 'bg-amber-400 h-1.5 rounded-full transition-all duration-1000 ease-linear';
+                } else { 
+                    display.className = 'text-lg font-mono font-bold text-emerald-400';
+                    progressBar.className = 'bg-emerald-500 h-1.5 rounded-full transition-all duration-1000 ease-linear';
+                }
+            }
+        }
+
+        function renderQuestion() {
+            const q = examQuestions[currentQuestion];
+            const container = document.getElementById('question-container');
+            let contentHtml = '';
+
+            if (q.type === 'open') {
+                const currentVal = userAnswers[currentQuestion] || '';
+                const safeVal = currentVal.toString().replace(/"/g, '&quot;');
+                
+                contentHtml = `
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-slate-700 text-slate-300 text-xs font-semibold px-2.5 py-1 rounded-md uppercase tracking-wider">${q.cat}</span>
+                            <span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-semibold px-2.5 py-1 rounded-md uppercase tracking-wider">Pregunta Abierta (Digitación Obligatoria)</span>
+                        </div>
+                        <h4 class="text-lg font-semibold text-white leading-relaxed">${currentQuestion + 1}. ${q.q}</h4>
+                        <div class="pt-2">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Digite su respuesta exacta aquí:</label>
+                            <input type="text" id="open_answer_${currentQuestion}" value="${safeVal}" oninput="saveOpenAnswer(${currentQuestion})" placeholder="${q.hint || 'Escriba aquí...'}" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-mono text-base transition">
+                            <p class="text-xs text-slate-400 mt-1.5">Nota: La evaluación valida la respuesta sin distinción de mayúsculas y minúsculas.</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                let optionsHtml = '';
+                q.options.forEach((opt, idx) => {
+                    const isSelected = userAnswers[currentQuestion] === idx;
+                    const checkedAttr = isSelected ? 'checked' : '';
+                    const borderClass = isSelected ? 'border-emerald-500 bg-emerald-950/30' : 'border-slate-700 bg-slate-900/50 hover:border-slate-600';
+                    
+                    optionsHtml += `
+                        <label class="flex items-start p-4 rounded-xl border ${borderClass} cursor-pointer transition group">
+                            <input type="radio" name="question_${currentQuestion}" value="${idx}" ${checkedAttr} onchange="selectAnswer(${currentQuestion}, ${idx})" class="mt-1 h-4 w-4 text-emerald-600 focus:ring-emerald-500 border-slate-600 bg-slate-900">
+                            <span class="ml-3 text-sm text-slate-200 group-hover:text-white font-medium">${opt}</span>
+                        </label>
+                    `;
+                });
+
+                contentHtml = `
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="bg-slate-700 text-slate-300 text-xs font-semibold px-2.5 py-1 rounded-md uppercase tracking-wider">${q.cat}</span>
+                            ${q.type === 'matching' ? '<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold px-2.5 py-1 rounded-md uppercase tracking-wider">Apareamiento Término / Significado</span>' : ''}
+                        </div>
+                        <h4 class="text-lg font-semibold text-white leading-relaxed">${currentQuestion + 1}. ${q.q}</h4>
+                    </div>
+                    <div class="space-y-2.5 pt-2">
+                        ${optionsHtml}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = contentHtml;
+
+            document.getElementById('question-progress-label').textContent = `Pregunta ${currentQuestion + 1} de ${examQuestions.length}`;
+            document.getElementById('category-title').textContent = q.cat;
+            const progressPercent = ((currentQuestion + 1) / examQuestions.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+            document.getElementById('prev-btn').disabled = currentQuestion === 0;
+            if (currentQuestion === examQuestions.length - 1) {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('submit-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('next-btn').classList.remove('hidden');
+                document.getElementById('submit-btn').classList.add('hidden');
+            }
+
+            updateNavDots();
+        }
+
+        function selectAnswer(qIdx, optIdx) {
+            userAnswers[qIdx] = optIdx;
+            updateNavDots();
+        }
+
+        function saveOpenAnswer(qIdx) {
+            const inputVal = document.getElementById(`open_answer_${qIdx}`).value;
+            userAnswers[qIdx] = inputVal;
+            updateNavDots();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < examQuestions.length - 1) {
+                currentQuestion++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                renderQuestion();
+            }
+        }
+
+        function goToQuestion(idx) {
+            currentQuestion = idx;
+            renderQuestion();
+        }
+
+        function updateNavDots() {
+            const dotsContainer = document.getElementById('question-nav-dots');
+            let html = '';
+            for (let i = 0; i < examQuestions.length; i++) {
+                let bgClass = 'bg-slate-700 text-slate-400';
+                if (userAnswers[i] !== null && userAnswers[i] !== '') {
+                    bgClass = 'bg-emerald-600/70 text-white font-semibold';
+                }
+                if (i === currentQuestion) {
+                    bgClass += ' ring-2 ring-emerald-400';
+                }
+                
+                html += `<button type="button" onclick="goToQuestion(${i})" class="w-8 h-8 rounded-lg text-xs flex-shrink-0 flex items-center justify-center transition ${bgClass}">${i + 1}</button>`;
+            }
+            dotsContainer.innerHTML = html;
+        }
+
+        function confirmSubmit() {
+            const unanswered = userAnswers.filter(a => a === null || a === '').length;
+            let msg = "¿Está seguro de finalizar y enviar la prueba?";
+            if (unanswered > 0) {
+                msg = `Tiene ${unanswered} preguntas sin responder. ¿Desea enviar la prueba de todas formas?`;
+            }
+            if (confirm(msg)) {
+                submitQuiz();
+            }
+        }
+
+        function submitQuiz() {
+            clearInterval(timerInterval);
+            
+            let score = 0;
+            examQuestions.forEach((q, idx) => {
+                const ans = userAnswers[idx];
+                if (q.type === 'open') {
+                    if (ans && typeof ans === 'string') {
+                        const cleanUserAns = ans.trim().toLowerCase().replace(/\s+/g, ' ');
+                        const isMatch = q.acceptedAnswers.some(acc => cleanUserAns.includes(acc));
+                        if (isMatch) score++;
+                    }
+                } else {
+                    if (ans === q.correct) score++;
+                }
+            });
+
+            const percentage = Math.round((score / examQuestions.length) * 100);
+            
+            // --- NUEVA LÓGICA DE MENSAJES SEGÚN EL PUNTAJE ---
+            let statusText = "";
+            let statusColor = "";
+            let badgeIcon = "";
+            let finalMessage = "";
+
+            if (percentage >= 90) {
+                statusText = "Aprobado";
+                statusColor = "text-emerald-400";
+                badgeIcon = "🎉";
+                finalMessage = "¡Bienvenido a la siguiente ronda!";
+            } else {
+                statusText = "No Aprobado";
+                statusColor = "text-rose-400";
+                badgeIcon = "📚";
+                finalMessage = "Síguelo intentando, hay que estudiar más.";
+            }
+
+            candidateData.score = score;
+            candidateData.percentage = percentage;
+            candidateData.status = statusText;
+
+            const submissions = JSON.parse(localStorage.getItem('sql_simulacro_submissions'));
+            submissions.push(candidateData);
+            localStorage.setItem('sql_simulacro_submissions', JSON.stringify(submissions));
+
+            document.getElementById('quiz-section').classList.add('hidden');
+            document.getElementById('timer-container').classList.add('hidden');
+            document.getElementById('result-section').classList.remove('hidden');
+
+            // Inyectar los datos en la pantalla de resultados
+            document.getElementById('score-display').textContent = `${score} / ${examQuestions.length}`;
+            document.getElementById('percentage-display').textContent = `${percentage}%`;
+            
+            const statusEl = document.getElementById('status-display');
+            statusEl.textContent = statusText;
+            statusEl.className = `text-lg font-bold mt-2 block ${statusColor}`;
+            
+            document.getElementById('result-badge').textContent = badgeIcon;
+            
+            // Mensaje dinámico principal
+            const subtitleEl = document.getElementById('result-subtitle');
+            subtitleEl.textContent = finalMessage;
+            subtitleEl.className = `text-xl font-bold mt-2 ${statusColor}`;
+
+            document.getElementById('res-name').textContent = candidateData.fullname;
+            document.getElementById('res-doc').textContent = candidateData.document;
+            document.getElementById('res-email').textContent = candidateData.email;
+            document.getElementById('res-time').textContent = candidateData.date;
+
+            buildReviewHtml();
+        }
+
+        function buildReviewHtml() {
+            const container = document.getElementById('review-container');
+            let html = '';
+
+            examQuestions.forEach((q, idx) => {
+                const userAns = userAnswers[idx];
+                let isCorrect = false;
+
+                if (q.type === 'open') {
+                    if (userAns && typeof userAns === 'string') {
+                        const cleanUserAns = userAns.trim().toLowerCase().replace(/\s+/g, ' ');
+                        isCorrect = q.acceptedAnswers.some(acc => cleanUserAns.includes(acc));
+                    }
+                } else {
+                    isCorrect = userAns === q.correct;
+                }
+
+                const badgeColor = isCorrect ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20';
+                const statusLabel = isCorrect ? 'Correcta' : 'Incorrecta';
+
+                let detailsHtml = '';
+                if (q.type === 'open') {
+                    detailsHtml = `
+                        <div class="text-xs space-y-1 mt-2">
+                            <p class="text-slate-300"><strong class="text-slate-400">Su respuesta digitada:</strong> <span class="font-mono text-white bg-slate-900 px-2 py-0.5 rounded border border-slate-700">${userAns || '(Sin respuesta)'}</span></p>
+                            <p class="text-emerald-400"><strong class="text-slate-400">Respuesta esperada:</strong> <span class="font-mono">${q.acceptedAnswers[0]}</span></p>
+                        </div>
+                    `;
+                } else {
+                    let optionsReviewHtml = '';
+                    q.options.forEach((opt, optIdx) => {
+                        let optStyle = 'bg-slate-900/50 border-slate-700 text-slate-300';
+                        if (optIdx === q.correct) {
+                            optStyle = 'bg-emerald-950/40 border-emerald-500 text-emerald-200 font-semibold';
+                        } else if (optIdx === userAns && !isCorrect) {
+                            optStyle = 'bg-rose-950/40 border-rose-500 text-rose-200';
+                        }
+                        optionsReviewHtml += `<div class="p-2.5 rounded-lg border text-xs ${optStyle}">${opt}</div>`;
+                    });
+                    detailsHtml = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">${optionsReviewHtml}</div>`;
+                }
+
+                html += `
+                    <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-4 space-y-2">
+                        <div class="flex justify-between items-start gap-2">
+                            <span class="text-xs font-semibold text-slate-400">${idx + 1}. ${q.cat}</span>
+                            <span class="text-xs px-2 py-0.5 rounded-full border ${badgeColor}">${statusLabel}</span>
+                        </div>
+                        <p class="text-sm font-medium text-white">${q.q}</p>
+                        ${detailsHtml}
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleReviewMode() {
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
